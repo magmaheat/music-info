@@ -26,6 +26,8 @@ func init() {
 		log.Fatal("migrate: environment variable not declared: PG_URL")
 	}
 
+	databaseURL += "?sslmode=disable"
+
 	var (
 		attempts = defaultAttempts
 		err      error
