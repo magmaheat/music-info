@@ -9,9 +9,12 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
+
 	// migrate tools
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+
+	_ "github.com/golang-migrate/migrate/v4/database/cassandra"
 )
 
 const (
@@ -19,7 +22,7 @@ const (
 	defaultTimeout  = time.Second
 )
 
-func init() {
+func initPG() {
 	databaseURL, ok := os.LookupEnv("PG_URL")
 	if !ok || len(databaseURL) {
 		log.Fatal("migrate: environment variable not declared: PG_URL")
@@ -32,7 +35,7 @@ func init() {
 	)
 
 	for attempts > 0 {
-		m, err = migrate.New("file://migrations", databaseURL)
+		m, err = migrate.New("file://migrations/postgres", databaseURL)
 
 		if err == nil {
 			break
@@ -60,4 +63,46 @@ func init() {
 
 	log.Infof("migrate: up success")
 
+}
+
+func initCS(session *gocql.Session) error {
+	databaseURL, ok := os.LookupEnv("CS_URL")
+	if !ok || len(databaseURL) {
+		log.Fatal("migrate: environment variable not declared: CS_URL")
+	}
+
+	var (
+		attempts = defaultAttempts
+		err      error
+		m        *migrate.Migrate
+	)
+
+	for attempts > 0 {
+		m, err = migrate.New("file://migrations/cassandra", databaseURL)
+
+		if err == nil {
+			break
+		}
+
+		log.Infof("migrate: csdb is trying to connect, attempts: %d", attempts)
+		time.Sleep(defaultTimeout)
+		attempts--
+	}
+
+	if err != nil {
+		log.Fatalf("migrate: csdb connect error: %v", err)
+	}
+
+	err = m.Up()
+	defer func() { _, _ = m.Close() }()
+	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		log.Fatalf("migrate: up error: %v", err)
+	}
+
+	if errors.Is(err, migrate.ErrNoChange) {
+		log.Info("migrate: no change")
+		return
+	}
+
+	log.Infof("migrate: up success")
 }
