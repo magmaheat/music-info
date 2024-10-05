@@ -1,21 +1,19 @@
 package repo
 
-type MetaRepo interface {
-	CreateSong()
-}
+import (
+	"github.com/magmaheat/music-info/internal/repo/pgdb"
+	"github.com/magmaheat/music-info/pkg/postgres"
+)
 
-type BaseRepo interface {
-	CreateText() (int, error)
-	GetText() error
+type SongRepo interface {
 }
 
 type Repositories struct {
-	MetaRepo
-	BaseRepo
+	Song SongRepo
 }
 
-func New() *Repositories {
-	return Repositories{
-		MetaRepo: ,
+func New(pg *postgres.Postgres) *Repositories {
+	return &Repositories{
+		Song: pgdb.NewSongRepo(pg),
 	}
 }
