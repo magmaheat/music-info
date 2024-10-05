@@ -7,7 +7,7 @@ type Song struct {
 	Group       string  `json:"group"`
 	Text        string  `json:"text"`
 	Genre       string  `json:"genre"`
-	ReleaseYear string  `json:"release_year"`
+	ReleaseYear int     `json:"release_year"`
 	Duration    float32 `json:"duration"`
 }
 

@@ -3,7 +3,6 @@ package app
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/magmaheat/music-info/configs"
-	"github.com/magmaheat/music-info/pkg/cassandra"
 	"github.com/magmaheat/music-info/pkg/postgres"
 	log "github.com/sirupsen/logrus"
 )
@@ -22,13 +21,7 @@ func Run() {
 		log.Fatalf("postgres error: %v", err)
 	}
 
-	cs, err := cassandra.New()
-	if err != nil {
-		log.Fatalf("cassandra error: %v", err)
-	}
-	defer cs.Session.Close()
-	
-	_, _ = pg, cs
+	_ = pg
 
 	handler := echo.New()
 
