@@ -18,7 +18,7 @@ type App struct {
 }
 
 type Log struct {
-	Level string `env-required:"true" env:"LOG_LeVEL"`
+	Level string `env-required:"true" env:"LOG_LEVEL"`
 }
 
 type HTTP struct {
@@ -34,7 +34,7 @@ type PG struct {
 func New() (*Config, error) {
 	cfg := &Config{}
 
-	err := cleanenv.UpdateEnv(cfg)
+	err := cleanenv.ReadEnv(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("error update environments: %v", err)
 	}

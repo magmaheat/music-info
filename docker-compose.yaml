@@ -10,17 +10,19 @@ services:
       - "5432:5432"
     restart: unless-stopped
 
-  cassandra:
-    container_name: cassandra
-    image: cassandra:latest
+  app:
+    container_name: app
+    build: .
     volumes:
-      - cassandra_data:/var/lib/cassandra
+      - ./logs:/logs
     env_file:
       - .env
     ports:
-      - "9042:9042"
+      - "8090:8090"
+    depends_on:
+      - postgres
+      - cassandra
     restart: unless-stopped
 
 volumes:
-  cassandra_data
-  postgres_data
+  postgres_data:
