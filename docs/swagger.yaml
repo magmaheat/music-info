@@ -1,0 +1,11 @@
+basePath: /
+host: localhost:8090
+info:
+  contact:
+    email: epishcom@gmail.com
+    name: George Epishev
+  description: '... //TODO add description'
+  title: Music Info
+  version: 0.0.1
+paths: {}
+swagger: "2.0"

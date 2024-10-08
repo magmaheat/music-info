@@ -11,6 +11,16 @@ type Song struct {
 	Duration    float32 `json:"duration"`
 }
 
+type InfoLibrary struct {
+	StartReleaseYear int     `json:"start_release_year"`
+	EndReleaseYear   int     `json:"end_release_year"`
+	Genre            string  `json:"genre"`
+	StartDuration    float32 `json:"start_duration"`
+	EndDuration      float32 `json:"end_duration"`
+	Offset           int     `json:"offset"`
+	Limit            int     `json:"limit"`
+}
+
 func (s *Song) Validate() error {
 	if s.Group == "" {
 		return errors.New("group is required")

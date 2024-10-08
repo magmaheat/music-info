@@ -1,17 +1,22 @@
 package service
 
-import "github.com/magmaheat/music-info/internal/repo"
+import (
+	"context"
+	"github.com/magmaheat/music-info/internal/entity"
+	"github.com/magmaheat/music-info/internal/repo"
+)
 
-type LibraryMusic interface {
+type MusicLibrary interface {
+	GetInfoLibrary(ctx context.Context, input entity.InfoLibrary) ([]entity.Song, error)
 	CreateSong()
 	GetSong()
 	UpdateSong()
 }
 
 type Services struct {
-	LibraryMusic LibraryMusic
+	MusicLibrary MusicLibrary
 }
 
 func NewServices(repo *repo.Repositories) *Services {
-	return &Services{LibraryMusic: NewLibraryMusic(repo.Song)}
+	return &Services{MusicLibrary: NewMusicLibrary(repo.Song)}
 }
