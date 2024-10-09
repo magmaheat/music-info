@@ -23,8 +23,33 @@ func (m *MusicLibraryService) GetInfoLibrary(ctx context.Context, input entity.I
 	return songs, nil
 }
 
-func (m *MusicLibraryService) CreateSong() {}
+func (m *MusicLibraryService) GetSongDetail(ctx context.Context, song, group string, offset, limit int) (entity.SongDetail, error) {
+	songDetail, err := m.library.GetSongDetail(ctx, song, group)
+	if err != nil {
+		return entity.SongDetail{}, err
+	}
 
-func (m *MusicLibraryService) GetSong() {}
+	return songDetail, nil
+}
 
-func (m *MusicLibraryService) UpdateSong() {}
+func (m *MusicLibraryService) UpdateSong(ctx context.Context, input entity.Song) (entity.Song, error) {
+	song, err := m.library.UpdateSong(ctx, input)
+	if err != nil {
+		return entity.Song{}, err
+	}
+
+	return song, nil
+}
+
+func (m *MusicLibraryService) AddSong(ctx context.Context, input entity.Song) (string, error) {
+	id, err := m.library.AddSong(ctx, input)
+	if err != nil {
+		return "", err
+	}
+
+	return id, nil
+}
+
+func (m *MusicLibraryService) DeleteSong(ctx context.Context, id string) error {
+	return m.DeleteSong(ctx, id)
+}

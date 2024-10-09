@@ -18,9 +18,9 @@ func newMusicLibraryRouter(c *echo.Echo, musicServices service.MusicLibrary) {
 	}
 
 	c.GET("/info-library", r.getInfoLibrary)
-	c.GET("/info", r.getTextSong)
+	c.GET("/info", r.textSong)
 
-	c.DELETE("/del", r.deleteSong)
+	c.DELETE("/delete", r.deleteSong)
 	c.PATCH("/update", r.updateSong)
 	c.POST("/add", r.addSong)
 }
@@ -29,8 +29,8 @@ func (m *musicLibraryRouter) getInfoLibrary(c echo.Context) error {
 	var input entity.InfoLibrary
 
 	if err := c.Bind(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid request body")
 		log.Errorf("controller - music_library - getInfoLibrary - c.Bind: %v", err)
+		newErrorResponse(c, http.StatusBadRequest, "invalid request body")
 		return err
 	}
 
@@ -51,18 +51,88 @@ func (m *musicLibraryRouter) getInfoLibrary(c echo.Context) error {
 	})
 }
 
-func (m *musicLibraryRouter) getTextSong(c echo.Context) error {
-	return nil
+type textSongInput struct {
+	Song   string `json:"song"`
+	Group  string `json:"group"`
+	Limit  int    `json:"limit"`
+	Offset int    `json:"offset"`
+}
+
+func (m *musicLibraryRouter) textSong(c echo.Context) error {
+	var song textSongInput
+
+	if err := c.Bind(&song); err != nil || song.Song == "" || song.Group == "" {
+		log.Errorf("controller - music_library - textSong - c.Bind: %v", err)
+		newErrorResponse(c, http.StatusBadRequest, "invalid body request")
+
+		return err
+	}
+
+	songDetail, err := m.musicLibrary.GetSongDetail(c.Request().Context(), song.Song, song.Group, song.Offset, song.Limit)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "internal server error")
+
+		return err
+	}
+
+	return c.JSON(http.StatusOK, songDetail)
 }
 
 func (m *musicLibraryRouter) deleteSong(c echo.Context) error {
-	return nil
+	var id string
+
+	if err := c.Bind(&id); err != nil {
+		log.Errorf("controller - music_library - deleteSong - c.Bind: %v", err)
+		newErrorResponse(c, http.StatusBadRequest, "invalid request body")
+		return err
+	}
+
+	err := m.musicLibrary.DeleteSong(c.Request().Context(), id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "internal server error")
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 func (m *musicLibraryRouter) updateSong(c echo.Context) error {
-	return nil
+	var song entity.Song
+
+	if err := c.Bind(&song); err != nil || song.Id == "" {
+		log.Errorf("controller - music_library - updateSong - c.Bind: %v", err)
+		newErrorResponse(c, http.StatusBadRequest, "invalid request body")
+		return err
+	}
+
+	newSong, err := m.musicLibrary.UpdateSong(c.Request().Context(), song)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "internal server error")
+		return err
+	}
+
+	return c.JSON(http.StatusOK, newSong)
 }
 
 func (m *musicLibraryRouter) addSong(c echo.Context) error {
-	return nil
+	var song entity.Song
+
+	if err := c.Bind(&song); err != nil || song.Validate() != nil {
+		log.Errorf("controller - music_library - addSong - c.Bind: %v", err)
+		newErrorResponse(c, http.StatusBadRequest, "invalid request body`")
+		return err
+	}
+
+	id, err := m.musicLibrary.AddSong(c.Request().Context(), song)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "internal server error")
+		return err
+	}
+
+	type response struct {
+		Id string `json:"id"`
+	}
+
+	return c.JSON(http.StatusCreated, response{
+		Id: id,
+	})
 }

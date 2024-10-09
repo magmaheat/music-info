@@ -8,9 +8,10 @@ import (
 
 type MusicLibrary interface {
 	GetInfoLibrary(ctx context.Context, input entity.InfoLibrary) ([]entity.Song, error)
-	CreateSong()
-	GetSong()
-	UpdateSong()
+	GetSongDetail(ctx context.Context, song, group string, offset, limit int) (entity.SongDetail, error)
+	DeleteSong(ctx context.Context, id string) error
+	UpdateSong(ctx context.Context, input entity.Song) (entity.Song, error)
+	AddSong(ctx context.Context, input entity.Song) (string, error)
 }
 
 type Services struct {
