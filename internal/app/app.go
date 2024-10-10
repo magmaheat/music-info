@@ -15,6 +15,16 @@ import (
 	"syscall"
 )
 
+// @title Music Info
+// @version 0.0.1
+// @description Music Info is a service for searching and adding music to your library.
+
+// @contact.name George Epishev
+// @contact.email epishcom@gmail.com
+
+// @host localhost:8090
+// @BasePath /
+
 func Run() {
 	cfg, err := configs.New()
 	if err != nil {
