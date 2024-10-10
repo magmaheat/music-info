@@ -17,7 +17,7 @@ import (
 
 // @title Music Info
 // @version 0.0.1
-// @description ... //TODO add description
+// @description Music Info is a service for searching and adding music to your library.
 
 // @contact.name George Epishev
 // @contact.email epishcom@gmail.com
