@@ -7,8 +7,9 @@ create table if not exists music (
     group_name varchar(50),
     text_song text default 'text',
     genre varchar(50),
-    release_date date,
+    release_date timestamp,
     duration float,
     link varchar(50) default 'url',
-    create_at timestamp default current_timestamp
+    create_at timestamp default current_timestamp,
+    UNIQUE (song_name, group_name)
 )

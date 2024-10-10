@@ -25,6 +25,15 @@ func newMusicLibraryRouter(c *echo.Echo, musicServices service.MusicLibrary) {
 	c.POST("/add", r.addSong)
 }
 
+// @Summary  info music library
+// @Description Get info of a songs in music library by
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} SongDetail "Ok"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /info-library [get]
+
 func (m *musicLibraryRouter) getInfoLibrary(c echo.Context) error {
 	var input entity.InfoLibrary
 
@@ -57,6 +66,17 @@ type textSongInput struct {
 	Limit  int    `json:"limit"`
 	Offset int    `json:"offset"`
 }
+
+// @Summary  song details
+// @Description Get details of a song by group and song name
+// @Accept  json
+// @Produce  json
+// @Param group query string true "group_name"
+// @Param song query string true "song_name"
+// @Success 200 {object} SongDetail "Ok"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /info [get]
 
 func (m *musicLibraryRouter) textSong(c echo.Context) error {
 	var song textSongInput

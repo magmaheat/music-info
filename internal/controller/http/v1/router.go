@@ -1,6 +1,8 @@
 package v1
 
 import (
+	_ "github.com/magmaheat/music-info/docs"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/magmaheat/music-info/internal/service"

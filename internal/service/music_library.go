@@ -29,6 +29,8 @@ func (m *MusicLibraryService) GetSongDetail(ctx context.Context, song, group str
 		return entity.SongDetail{}, err
 	}
 
+	songDetail.FormatText(offset, limit)
+
 	return songDetail, nil
 }
 

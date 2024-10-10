@@ -1,13 +1,3 @@
-// @title Music Info
-// @version 0.0.1
-// @description ... //TODO add description
-
-// @contact.name George Epishev
-// @contact.email epishcom@gmail.com
-
-// @host localhost:8090
-// @BasePath /
-
 package app
 
 import (
@@ -24,6 +14,16 @@ import (
 	"os/signal"
 	"syscall"
 )
+
+// @title Music Info
+// @version 0.0.1
+// @description ... //TODO add description
+
+// @contact.name George Epishev
+// @contact.email epishcom@gmail.com
+
+// @host localhost:8090
+// @BasePath /
 
 func Run() {
 	cfg, err := configs.New()

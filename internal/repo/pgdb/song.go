@@ -24,15 +24,14 @@ func (s *SongRepo) GetInfoLibrary(ctx context.Context, input entity.InfoLibrary)
 
 	queryBuilder := s.Builder.Select("id, song_name, group_name, text_song, genre, release_date, duration").From("music")
 
-	layout := "2006.02.01"
-	defaultDate, _ := time.Parse(layout, "01.01.1970")
-
-	if input.StartReleaseData != defaultDate {
-		queryBuilder = queryBuilder.Where(squirrel.GtOrEq{"release_date": input.StartReleaseData})
+	if input.StartReleaseData != "" {
+		date, _ := time.Parse("02.01.2006", input.StartReleaseData)
+		queryBuilder = queryBuilder.Where(squirrel.GtOrEq{"release_date": date})
 	}
 
-	if input.EndReleaseYear != defaultDate {
-		queryBuilder = queryBuilder.Where(squirrel.LtOrEq{"release_year": input.EndReleaseYear})
+	if input.EndReleaseYear != "" {
+		date, _ := time.Parse("02.01.2006", input.EndReleaseYear)
+		queryBuilder = queryBuilder.Where(squirrel.LtOrEq{"release_year": date})
 	}
 
 	if input.Genre != "" {
@@ -72,10 +71,15 @@ func (s *SongRepo) GetInfoLibrary(ctx context.Context, input entity.InfoLibrary)
 	var songs []entity.Song
 	for rows.Next() {
 		var song entity.Song
-		if err := rows.Scan(&song.Id, &song.Name, &song.Group, &song.Text, &song.Genre, &song.ReleaseData, &song.Duration); err != nil {
+		var date time.Time
+
+		if err := rows.Scan(&song.Id, &song.Name, &song.Group, &song.Text, &song.Genre, &date, &song.Duration); err != nil {
 			log.Errorf("%s - rows.Scan: %v", fn, err)
 			return nil, err
 		}
+
+		song.ReleaseDate = date.Format("02.01.2006")
+
 		songs = append(songs, song)
 	}
 
@@ -89,13 +93,17 @@ func (s *SongRepo) GetSongDetail(ctx context.Context, song, group string) (entit
 		Where("song_name = ? AND group_name = ?", song, group).
 		ToSql()
 
+	var date time.Time
+
 	var songDetail entity.SongDetail
 	err := s.Pool.QueryRow(ctx, sql, args...).Scan(
 		&songDetail.Id,
-		&songDetail.ReleaseDate,
+		&date,
 		&songDetail.Text,
 		&songDetail.Link,
 	)
+
+	songDetail.ReleaseDate = date.Format("02.01.2006")
 
 	if err != nil {
 		log.Errorf("pgdb - song - s.Pool.QueryRow: %v", err)
@@ -140,11 +148,9 @@ func (s *SongRepo) UpdateSong(ctx context.Context, song entity.Song) (entity.Son
 		queryBuilder = queryBuilder.Set("duration", song.Duration)
 	}
 
-	layout := "2006.02.01"
-	defaultDate, _ := time.Parse(layout, "01.01.1970")
-
-	if song.ReleaseData != defaultDate {
-		queryBuilder = queryBuilder.Set("release_data", song.ReleaseData)
+	if song.ReleaseDate != "" {
+		date, _ := time.Parse("02.01.2006", song.ReleaseDate)
+		queryBuilder = queryBuilder.Set("release_data", date)
 	}
 
 	if song.Link != "" {
@@ -162,7 +168,7 @@ func (s *SongRepo) UpdateSong(ctx context.Context, song entity.Song) (entity.Son
 		&newSong.Text,
 		&newSong.Genre,
 		&newSong.Duration,
-		&newSong.ReleaseData,
+		&newSong.ReleaseDate,
 		&newSong.Link,
 	)
 	if err != nil {
@@ -174,16 +180,18 @@ func (s *SongRepo) UpdateSong(ctx context.Context, song entity.Song) (entity.Son
 }
 
 func (s *SongRepo) AddSong(ctx context.Context, song entity.Song) (string, error) {
+	date, _ := time.Parse("02.01.2006", song.ReleaseDate)
+
 	sql, args, _ := s.Builder.Insert("music").
 		Columns("song_name, group_name, text_song, genre, release_date, duration, link").
-		Values(song.Name, song.Group, song.Text, song.Genre, song.ReleaseData, song.Duration, song.Link).
+		Values(song.Name, song.Group, song.Text, song.Genre, date, song.Duration, song.Link).
 		Suffix("RETURNING id").
 		ToSql()
 
 	var id string
 	err := s.Pool.QueryRow(ctx, sql, args...).Scan(&id)
 	if err != nil {
-		log.Errorf("pgsb - song - UpdateSong - s.Pool.QueryRow: %v", err)
+		log.Errorf("pgsb - song - AddSong - s.Pool.QueryRow: %v", err)
 		return "", err
 	}
 
