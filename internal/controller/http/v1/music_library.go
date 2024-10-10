@@ -27,6 +27,7 @@ func newMusicLibraryRouter(c *echo.Echo, musicServices service.MusicLibrary) {
 
 // @Summary  info music library
 // @Description Get info of a songs in music library by
+// @Tags info
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} SongDetail "Ok"

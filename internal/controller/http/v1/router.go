@@ -1,8 +1,6 @@
 package v1
 
 import (
-	_ "github.com/magmaheat/music-info/docs"
-
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/magmaheat/music-info/internal/service"
@@ -10,7 +8,19 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	echoSwagger "github.com/swaggo/echo-swagger"
+
+	_ "github.com/magmaheat/music-info/docs"
 )
+
+// @title Music Info
+// @version 0.0.1
+// @description Music Info is a service for searching and adding music to your library.
+
+// @contact.name George Epishev
+// @contact.email epishcom@gmail.com
+
+// @host localhost:8090
+// @BasePath /
 
 func NewRouter(handler *echo.Echo, services *service.Services) {
 	handler.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
